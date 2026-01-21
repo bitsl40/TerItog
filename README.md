@@ -10,7 +10,7 @@
  ## Virtual Private Cloud (VPC). 
    ```resource "yandex_vpc_network" "develop" {
     name = var.vpc_name
-    }
+    } ```
 
 Подсети.
 ```resource "yandex_vpc_subnet" "develop" {
