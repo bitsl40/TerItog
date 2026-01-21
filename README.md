@@ -187,3 +187,43 @@ runcmd:
   - sudo systemctl start docker
 ```
 
+## Задание 3. Описан Docker файл (взят из  Задания 5 «Виртуализация и контейнеризация») c web-приложением и сохранен контейнер в Container Registry используя Terraform.
+```hcl
+resource "docker_image" "my-app-image" {
+  
+  name = "cr.yandex/${yandex_container_registry.my-registry.id}/my-app:v1"
+  
+  build {
+    context = "." 
+  }
+}
+resource "docker_registry_image" "push-image" {
+  name          = docker_image.my-app-image.name
+  keep_remotely = true
+}
+```
+## Задание 4. Завязана работа приложения(запущенного на ВМ ) в контейнере на БД в Yandex Cloud. 
+Контейнер пулится с Container Registry на ВМ  и там запускается, реализованно через склейку с cloud-init через метаданные и описано через Terraform.
+```hcl
+metadata = {
+    serial-port-enable = var.vm_metadata.serial-port-enable
+    ssh-keys           = var.vm_metadata.ssh-keys
+    user-data = <<EOF
+${file("${path.module}/cloud-init.yaml")}
+  - |
+    echo "${var.token}" | docker login --username oauth --password-stdin cr.yandex
+    docker run -d --name app -p 80:5000 \
+      -e DB_HOST="c-${yandex_mdb_mysql_cluster.mysql.id}.rw.mdb.yandexcloud.net" \
+      -e DB_NAME="${var.mysql_db_name}" \
+      -e DB_USER="${var.mysql_user_name}" \
+      -e DB_PASSWORD="${var.mysql_user_password}" \
+      --restart always \
+      ${docker_registry_image.push-image.name}
+EOF
+  }
+  depends_on = [
+    yandex_mdb_mysql_user.app_user,
+    docker_registry_image.push-image
+  ]
+}
+```
