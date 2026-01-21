@@ -137,3 +137,53 @@ resource "yandex_container_repository" "my-repository" {
   name = "${yandex_container_registry.my-registry.id}/my-repository"
 }
 ```
+
+## Задание 2. Используя user-data (cloud-init), установите Docker и Docker Compose
+Создан файл cloud-init.yaml, при описании ВМ через Terraform в блоке метаданных идет обращение к нему```hclmetadata = {
+    serial-port-enable = var.vm_metadata.serial-port-enable
+    ssh-keys           = var.vm_metadata.ssh-keys
+    user-data = <<EOF
+${file("${path.module}/cloud-init.yaml")} ```, таким образом устанвливается Docker и Docker Compose на ВМ при ее создании
+
+
+листинг cloud-init.yaml:
+```hcl
+#cloud-config
+packages:
+  - curl
+  - ca-certificates
+  - software-properties-common
+  - apt-transport-https
+  - gnupg
+
+runcmd:
+  - sudo apt-get update -y
+  - sudo apt-get upgrade -y
+  - |
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+    | sudo apt-key add -
+  - |
+    sudo add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) stable"
+
+  - sudo apt-get update -y
+  - |
+    sudo apt-get install -y \
+    docker-ce \
+    docker-ce-cli \
+    containerd.io
+
+  - sudo usermod -aG docker ubuntu
+  - |
+    sudo mkdir -p /usr/local/lib/docker/cli-plugins && \
+    sudo curl -SL \
+    https://github.com/docker/compose/releases/latest/download/\
+    docker-compose-linux-x86_64 \
+    -o /usr/local/lib/docker/cli-plugins/docker-compose && \
+    sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+  - sudo systemctl enable docker
+  - sudo systemctl start docker
+```
+
