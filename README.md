@@ -4,16 +4,16 @@
     Собрано простое web-приложение (с описанием Dockerfile).
     Настроена инфраструктура в Yandex Cloud и развернуто приложение в облачной среде, используя Terraform.
 
-##Задание 1. Развертывание инфраструктуры в Yandex Cloud.
+## Задание 1. Развертывание инфраструктуры в Yandex Cloud.
 Описаны и созданы следующее ресурсы в облаке Яндекс с помощью контсрукции Terraform:
     
- ##Virtual Private Cloud (VPC). 
-    ```resource "yandex_vpc_network" "develop" {
+ ## Virtual Private Cloud (VPC). 
+   ```resource "yandex_vpc_network" "develop" {
     name = var.vpc_name
     }
 
 Подсети.
-resource "yandex_vpc_subnet" "develop" {
+```resource "yandex_vpc_subnet" "develop" {
 name           = var.vpc_name
 zone           = var.default_zone
 network_id     = yandex_vpc_network.develop.id
