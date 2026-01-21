@@ -14,7 +14,7 @@
 resource "yandex_vpc_network" "develop" {
   name = var.vpc_name
 }
-
+```
 ## Подсети.
 ```hcl
 resource "yandex_vpc_subnet" "develop" {
