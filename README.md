@@ -6,10 +6,10 @@
 
 ##Задание 1. Развертывание инфраструктуры в Yandex Cloud.
 Описаны и созданы следующее ресурсы в облаке Яндекс с помощью контсрукции Terraform:
- >Virtual Private Cloud (VPC). 
- > resource "yandex_vpc_network" "develop" {
- > name = var.vpc_name
-> }
+     Virtual Private Cloud (VPC). 
+    resource "yandex_vpc_network" "develop" {
+    name = var.vpc_name
+    }
 
 Подсети.
 >resource "yandex_vpc_subnet" "develop" {
